@@ -66,13 +66,14 @@ public class SeatLayoutService {
         return null;
     }
 
-    public void updateSeatAvailability(Long seatId, boolean isAvailable) {
+    public SeatLayout updateSeatAvailability(Long seatId, boolean isAvailable) {
         Optional<SeatLayout> optionalSeat = seatLayoutRepository.findById(seatId);
         if (optionalSeat.isPresent()) {
             SeatLayout seat = optionalSeat.get();
             seat.setIsAvailable(isAvailable);
-            seatLayoutRepository.save(seat);
+            return seatLayoutRepository.save(seat);
         }
+        return null;
     }
 
     public void deleteSeat(Long id) {

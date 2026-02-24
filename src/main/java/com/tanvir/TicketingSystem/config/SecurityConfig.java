@@ -4,6 +4,7 @@ import com.tanvir.TicketingSystem.security.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -52,6 +53,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authz -> authz
                         // Public endpoints
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
@@ -59,15 +61,21 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/reports/**").hasRole("ADMIN")
 
-                        // User and Admin endpoints
-                        .requestMatchers("/api/bookings/**").hasAnyRole("USER", "ADMIN")
+                        // User, Admin and Operator endpoints
+                        .requestMatchers("/api/bookings/**").hasAnyRole("USER", "ADMIN", "OPERATOR")
                         .requestMatchers("/api/users/profile/**").hasAnyRole("USER", "ADMIN")
 
                         // Public read endpoints (search, schedules, routes)
-                        .requestMatchers("/api/cities/**").permitAll()
-                        .requestMatchers("/api/routes/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/cities/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/routes/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/transport-types/**").permitAll()
                         .requestMatchers("/api/schedules/search/**").permitAll()
-                        .requestMatchers("/api/transport-types/**").permitAll()
+
+                        // Secured entity management (Admin/Operator)
+                        .requestMatchers("/api/cities/**").hasAnyRole("ADMIN", "OPERATOR")
+                        .requestMatchers("/api/routes/**").hasAnyRole("ADMIN", "OPERATOR")
+                        .requestMatchers("/api/transport-types/**").hasAnyRole("ADMIN", "OPERATOR")
+                        .requestMatchers("/api/schedules/**").hasAnyRole("ADMIN", "OPERATOR")
 
                         // All other requests require authentication
                         .anyRequest().authenticated())
@@ -98,7 +106,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:3000"));
+        configuration.setAllowedOriginPatterns(List.of("*")); // More lenient for debugging
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);

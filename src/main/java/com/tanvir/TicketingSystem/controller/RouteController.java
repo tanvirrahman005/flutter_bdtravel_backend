@@ -4,6 +4,7 @@ import com.tanvir.TicketingSystem.entity.Route;
 import com.tanvir.TicketingSystem.service.RouteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,23 +47,34 @@ public class RouteController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
     public Route createRoute(@RequestBody Route route) {
         return routeService.createRoute(route);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
     public ResponseEntity<Route> updateRoute(@PathVariable Long id, @RequestBody Route routeDetails) {
         Route updatedRoute = routeService.updateRoute(id, routeDetails);
         return updatedRoute != null ? ResponseEntity.ok(updatedRoute) : ResponseEntity.notFound().build();
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deactivateRoute(@PathVariable Long id) {
-        routeService.deactivateRoute(id);
-        return ResponseEntity.ok().build();
+    @PatchMapping("/{id}/activate")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
+    public ResponseEntity<Route> activateRoute(@PathVariable Long id) {
+        Route route = routeService.activateRoute(id);
+        return route != null ? ResponseEntity.ok(route) : ResponseEntity.notFound().build();
     }
 
-    @DeleteMapping("/{id}/delete")
+    @PatchMapping("/{id}/deactivate")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
+    public ResponseEntity<Route> deactivateRoute(@PathVariable Long id) {
+        Route route = routeService.deactivateRoute(id);
+        return route != null ? ResponseEntity.ok(route) : ResponseEntity.notFound().build();
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
     public ResponseEntity<Void> deleteRoute(@PathVariable Long id) {
         routeService.deleteRoute(id);
         return ResponseEntity.ok().build();

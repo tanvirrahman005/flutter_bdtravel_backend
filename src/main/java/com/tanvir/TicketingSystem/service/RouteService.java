@@ -49,6 +49,8 @@ public class RouteService {
     }
 
     public Route updateRoute(Long id, Route routeDetails) {
+        if (id == null)
+            return null;
         Optional<Route> optionalRoute = routeRepository.findById(id);
         if (optionalRoute.isPresent()) {
             Route route = optionalRoute.get();
@@ -64,13 +66,24 @@ public class RouteService {
         return null;
     }
 
-    public void deactivateRoute(Long id) {
+    public Route activateRoute(Long id) {
+        Optional<Route> optionalRoute = routeRepository.findById(id);
+        if (optionalRoute.isPresent()) {
+            Route route = optionalRoute.get();
+            route.setIsActive(true);
+            return routeRepository.save(route);
+        }
+        return null;
+    }
+
+    public Route deactivateRoute(Long id) {
         Optional<Route> optionalRoute = routeRepository.findById(id);
         if (optionalRoute.isPresent()) {
             Route route = optionalRoute.get();
             route.setIsActive(false);
-            routeRepository.save(route);
+            return routeRepository.save(route);
         }
+        return null;
     }
 
     public void deleteRoute(Long id) {

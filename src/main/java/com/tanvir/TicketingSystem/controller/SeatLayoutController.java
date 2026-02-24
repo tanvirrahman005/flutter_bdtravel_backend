@@ -4,6 +4,7 @@ import com.tanvir.TicketingSystem.entity.SeatLayout;
 import com.tanvir.TicketingSystem.service.SeatLayoutService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,19 +44,22 @@ public class SeatLayoutController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
     public SeatLayout createSeat(@RequestBody SeatLayout seatLayout) {
         return seatLayoutService.createSeat(seatLayout);
     }
 
     @PostMapping("/bulk")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
     public List<SeatLayout> createMultipleSeats(@RequestBody List<SeatLayout> seatLayouts) {
         return seatLayoutService.createMultipleSeats(seatLayouts);
     }
 
     @PatchMapping("/{id}/availability")
-    public ResponseEntity<Void> updateSeatAvailability(@PathVariable Long id, @RequestParam boolean available) {
-        seatLayoutService.updateSeatAvailability(id, available);
-        return ResponseEntity.ok().build();
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
+    public ResponseEntity<SeatLayout> updateSeatAvailability(@PathVariable Long id, @RequestParam boolean available) {
+        SeatLayout updated = seatLayoutService.updateSeatAvailability(id, available);
+        return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
     }
 
     @GetMapping
@@ -69,12 +73,14 @@ public class SeatLayoutController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
     public ResponseEntity<SeatLayout> updateSeat(@PathVariable Long id, @RequestBody SeatLayout seatLayout) {
         SeatLayout updated = seatLayoutService.updateSeat(id, seatLayout);
         return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
     public ResponseEntity<Void> deleteSeat(@PathVariable Long id) {
         seatLayoutService.deleteSeat(id);
         return ResponseEntity.ok().build();
