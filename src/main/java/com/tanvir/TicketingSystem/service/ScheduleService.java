@@ -22,6 +22,9 @@ public class ScheduleService {
     @Autowired
     private RouteService routeService;
 
+    @Autowired
+    private com.tanvir.TicketingSystem.repository.BookingRepository bookingRepository;
+
     public List<Schedule> getAllSchedules() {
         return scheduleRepository.findAll();
     }
@@ -38,8 +41,9 @@ public class ScheduleService {
         return scheduleRepository.findUpcomingSchedulesByRoute(routeId, LocalDateTime.now());
     }
 
-    public List<Schedule> getAvailableSchedules(Long startCityId, Long endCityId, LocalDateTime departureDate) {
-        return scheduleRepository.findAvailableSchedules(startCityId, endCityId, departureDate);
+    public List<Schedule> getAvailableSchedules(Long startCityId, Long endCityId, LocalDateTime departureDate,
+            Long transportTypeId) {
+        return scheduleRepository.findAvailableSchedules(startCityId, endCityId, departureDate, transportTypeId);
     }
 
     public List<Schedule> getSchedulesByTransportTypeAndDate(Long transportTypeId, LocalDateTime startDate) {
@@ -47,6 +51,9 @@ public class ScheduleService {
     }
 
     public Schedule createSchedule(Schedule schedule) {
+        if (schedule.getAvailableSeats() == null && schedule.getVehicle() != null) {
+            schedule.setAvailableSeats(schedule.getVehicle().getTotalSeats());
+        }
         return scheduleRepository.save(schedule);
     }
 
@@ -93,6 +100,17 @@ public class ScheduleService {
         if (optionalSchedule.isPresent()) {
             Schedule schedule = optionalSchedule.get();
             schedule.setAvailableSeats(schedule.getAvailableSeats() + seats);
+            scheduleRepository.save(schedule);
+        }
+    }
+
+    public void syncAvailableSeats(Long scheduleId) {
+        Optional<Schedule> optionalSchedule = scheduleRepository.findById(scheduleId);
+        if (optionalSchedule.isPresent()) {
+            Schedule schedule = optionalSchedule.get();
+            int totalSeats = schedule.getVehicle().getTotalSeats();
+            Long confirmedBookings = bookingRepository.countConfirmedBookingsByScheduleId(scheduleId);
+            schedule.setAvailableSeats(totalSeats - confirmedBookings.intValue());
             scheduleRepository.save(schedule);
         }
     }

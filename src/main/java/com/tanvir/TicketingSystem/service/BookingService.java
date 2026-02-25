@@ -232,6 +232,10 @@ public class BookingService {
         return bookingRepository.countConfirmedBookingsByScheduleId(scheduleId);
     }
 
+    public List<SeatLayout> getBookedSeatsBySchedule(Long scheduleId) {
+        return bookingSeatRepository.findBookedSeatsByScheduleId(scheduleId);
+    }
+
     private String generateBookingReference() {
         return "BK" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }

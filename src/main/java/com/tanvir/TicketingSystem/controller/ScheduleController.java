@@ -44,8 +44,9 @@ public class ScheduleController {
     public List<Schedule> getAvailableSchedules(
             @RequestParam Long startCityId,
             @RequestParam Long endCityId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime departureDate) {
-        return scheduleService.getAvailableSchedules(startCityId, endCityId, departureDate);
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime departureDate,
+            @RequestParam(required = false) Long transportTypeId) {
+        return scheduleService.getAvailableSchedules(startCityId, endCityId, departureDate, transportTypeId);
     }
 
     @GetMapping("/transport-type/{transportTypeId}")
@@ -80,6 +81,12 @@ public class ScheduleController {
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<Void> deleteSchedule(@PathVariable Long id) {
         scheduleService.deleteSchedule(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/sync-seats")
+    public ResponseEntity<Void> syncAvailableSeats(@PathVariable Long id) {
+        scheduleService.syncAvailableSeats(id);
         return ResponseEntity.ok().build();
     }
 }

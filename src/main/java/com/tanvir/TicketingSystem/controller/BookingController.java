@@ -114,6 +114,11 @@ public class BookingController {
         return bookingService.countConfirmedBookingsBySchedule(scheduleId);
     }
 
+    @GetMapping("/schedule/{scheduleId}/booked-seats")
+    public List<com.tanvir.TicketingSystem.entity.SeatLayout> getBookedSeats(@PathVariable Long scheduleId) {
+        return bookingService.getBookedSeatsBySchedule(scheduleId);
+    }
+
     @Autowired
     private com.tanvir.TicketingSystem.service.ReportService reportService;
 
