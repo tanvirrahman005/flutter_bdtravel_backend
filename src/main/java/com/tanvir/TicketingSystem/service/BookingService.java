@@ -131,10 +131,17 @@ public class BookingService {
     }
 
     public Booking updateBookingStatus(Long id, Booking.BookingStatus status) {
+        return updateBookingStatus(id, status, null);
+    }
+
+    public Booking updateBookingStatus(Long id, Booking.BookingStatus status, String paymentPhone) {
         Optional<Booking> optionalBooking = bookingRepository.findById(id);
         if (optionalBooking.isPresent()) {
             Booking booking = optionalBooking.get();
             booking.setBookingStatus(status);
+            if (paymentPhone != null && !paymentPhone.isEmpty()) {
+                booking.setPaymentPhone(paymentPhone);
+            }
             return bookingRepository.save(booking);
         }
         return null;

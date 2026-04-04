@@ -12,4 +12,6 @@ public class DashboardStats {
     private long activeRoutes;
     private long totalUsers;
     private long fleetSize;
+    private double totalRevenue;
+    private java.util.Map<String, Double> monthlyRevenue;
 }

@@ -37,6 +37,18 @@ public class DashboardController {
         stats.setTotalUsers(userRepository.count());
         stats.setFleetSize(vehicleRepository.countActiveVehicles());
 
+        Double totalRevenue = bookingRepository.sumTotalAmount();
+        stats.setTotalRevenue(totalRevenue != null ? totalRevenue : 0.0);
+
+        java.util.List<Object[]> monthlyData = bookingRepository.getMonthlyRevenue();
+        java.util.Map<String, Double> monthlyMap = new java.util.LinkedHashMap<>();
+        for (Object[] row : monthlyData) {
+            String month = (String) row[0];
+            Double revenue = ((java.math.BigDecimal) row[1]).doubleValue();
+            monthlyMap.put(month, revenue);
+        }
+        stats.setMonthlyRevenue(monthlyMap);
+
         return ResponseEntity.ok(stats);
     }
 }

@@ -81,10 +81,13 @@ public class BookingController {
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<Booking> updateBookingStatus(@PathVariable Long id, @RequestParam String status) {
+    public ResponseEntity<Booking> updateBookingStatus(
+            @PathVariable Long id,
+            @RequestParam String status,
+            @RequestParam(required = false) String paymentPhone) {
         try {
             Booking.BookingStatus bookingStatus = Booking.BookingStatus.valueOf(status.toUpperCase());
-            Booking updatedBooking = bookingService.updateBookingStatus(id, bookingStatus);
+            Booking updatedBooking = bookingService.updateBookingStatus(id, bookingStatus, paymentPhone);
             return updatedBooking != null ? ResponseEntity.ok(updatedBooking) : ResponseEntity.notFound().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();

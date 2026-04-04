@@ -41,6 +41,9 @@ public class Booking {
     @Column(name = "passenger_nid", length = 50)
     private String passengerNid;
 
+    @Column(name = "payment_phone", length = 20)
+    private String paymentPhone;
+
     @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
@@ -144,6 +147,14 @@ public class Booking {
 
     public void setPassengerNid(String passengerNid) {
         this.passengerNid = passengerNid;
+    }
+
+    public String getPaymentPhone() {
+        return paymentPhone;
+    }
+
+    public void setPaymentPhone(String paymentPhone) {
+        this.paymentPhone = paymentPhone;
     }
 
     public BigDecimal getTotalAmount() {

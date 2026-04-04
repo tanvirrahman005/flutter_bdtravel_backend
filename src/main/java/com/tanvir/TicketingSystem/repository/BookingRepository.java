@@ -13,31 +13,40 @@ import java.util.Optional;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    Optional<Booking> findByBookingReference(String bookingReference);
+        Optional<Booking> findByBookingReference(String bookingReference);
 
-    List<Booking> findBySchedule(Schedule schedule);
+        List<Booking> findBySchedule(Schedule schedule);
 
-    List<Booking> findByBookingStatus(Booking.BookingStatus status);
+        List<Booking> findByBookingStatus(Booking.BookingStatus status);
 
-    List<Booking> findByPassengerPhone(String passengerPhone);
+        List<Booking> findByPassengerPhone(String passengerPhone);
 
-    List<Booking> findByPassengerEmail(String passengerEmail);
+        List<Booking> findByPassengerEmail(String passengerEmail);
 
-    @Query("SELECT b FROM Booking b WHERE b.bookingDate BETWEEN :startDate AND :endDate ORDER BY b.bookingDate DESC")
-    List<Booking> findBookingsByDateRange(@Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate);
+        @Query("SELECT b FROM Booking b WHERE b.bookingDate BETWEEN :startDate AND :endDate ORDER BY b.bookingDate DESC")
+        List<Booking> findBookingsByDateRange(@Param("startDate") LocalDateTime startDate,
+                        @Param("endDate") LocalDateTime endDate);
 
-    @Query("SELECT COUNT(b) FROM Booking b WHERE b.schedule.id = :scheduleId AND b.bookingStatus = 'CONFIRMED'")
-    Long countConfirmedBookingsByScheduleId(@Param("scheduleId") Long scheduleId);
+        @Query("SELECT COUNT(b) FROM Booking b WHERE b.schedule.id = :scheduleId AND b.bookingStatus = 'CONFIRMED'")
+        Long countConfirmedBookingsByScheduleId(@Param("scheduleId") Long scheduleId);
 
-    @Query("SELECT b FROM Booking b WHERE b.passengerPhone = :phone AND b.bookingStatus IN ('PENDING', 'CONFIRMED')")
-    List<Booking> findActiveBookingsByPhone(@Param("phone") String phone);
+        @Query("SELECT b FROM Booking b WHERE b.passengerPhone = :phone AND b.bookingStatus IN ('PENDING', 'CONFIRMED')")
+        List<Booking> findActiveBookingsByPhone(@Param("phone") String phone);
 
-    @Query("SELECT b FROM Booking b WHERE b.user.id = :userId ORDER BY b.createdAt DESC")
-    List<Booking> findByUserId(@Param("userId") Long userId);
+        @Query("SELECT b FROM Booking b WHERE b.user.id = :userId ORDER BY b.createdAt DESC")
+        List<Booking> findByUserId(@Param("userId") Long userId);
 
-    @Query("SELECT b FROM Booking b WHERE b.bookingStatus = 'PENDING' AND b.bookingDate < :cutoffTime")
-    List<Booking> findPendingBookingsCreatedBefore(@Param("cutoffTime") java.sql.Timestamp cutoffTime);
+        @Query("SELECT b FROM Booking b WHERE b.bookingStatus = 'PENDING' AND b.bookingDate < :cutoffTime")
+        List<Booking> findPendingBookingsCreatedBefore(@Param("cutoffTime") java.sql.Timestamp cutoffTime);
 
-    boolean existsByBookingReference(String bookingReference);
+        @Query("SELECT SUM(b.totalAmount) FROM Booking b WHERE b.bookingStatus = 'CONFIRMED'")
+        Double sumTotalAmount();
+
+        @Query(value = "SELECT DATE_FORMAT(booking_date, '%b') as month, SUM(total_amount) as revenue " +
+                        "FROM booking WHERE booking_status = 'CONFIRMED' " +
+                        "GROUP BY DATE_FORMAT(booking_date, '%b'), MONTH(booking_date) " +
+                        "ORDER BY MONTH(booking_date)", nativeQuery = true)
+        List<Object[]> getMonthlyRevenue();
+
+        boolean existsByBookingReference(String bookingReference);
 }
